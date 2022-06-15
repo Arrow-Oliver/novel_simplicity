@@ -1,0 +1,59 @@
+spring:
+  profiles:
+    active: dev
+  # 将所有数字转为 String 类型返回，避免前端数据精度丢失的问题
+  jackson:
+    generator:
+      write-numbers-as-strings: true
+  servlet:
+    # 上传文件最大大小
+    multipart:
+      max-file-size: 5MB
+server:
+  port: 8888
+
+---
+spring:
+  #数据库配置
+  datasource:
+    url: jdbc:mysql://192.168.127.134:3306/novel?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  config:
+    activate:
+      on-profile: dev
+---
+spring:
+  # Redis 配置
+  redis:
+    host: 192.168.127.134
+    port: 6379
+    password: 123456
+  config:
+    activate:
+      on-profile: dev
+
+# 项目配置
+novel:
+  # 跨域配置
+  cors:
+    # 允许跨域的域名
+    allow-origins:
+      - http://localhost:1024
+      - http://localhost:8080
+  # JWT密钥
+  jwt:
+    secret: E66559580A1ADF48CDD928516062F12E
+  # XSS 过滤配置
+  xss:
+    # 过滤开关
+    enabled: true
+    # 排除链接
+    excludes:
+      - /system/notice/*
+  file:
+    # 文件上传配置
+    upload:
+      # 上传路径
+      path: F:/img
+
