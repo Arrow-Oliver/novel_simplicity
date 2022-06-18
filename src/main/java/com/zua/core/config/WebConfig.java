@@ -2,6 +2,7 @@ package com.zua.core.config;
 
 import com.zua.core.constant.ApiRouterConsts;
 import com.zua.core.interceptor.AuthInterceptor;
+import com.zua.core.interceptor.FileInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -17,8 +18,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final AuthInterceptor authInterceptor;
 
+    private final FileInterceptor fileInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        //文件拦截器
+        registry.addInterceptor(fileInterceptor)
+                .addPathPatterns(ApiRouterConsts.API_FRONT_RESOURCE_URL_PREFIX + "/**");
+
+
         // 认证拦截器
         registry.addInterceptor(authInterceptor)
                 //拦截路径

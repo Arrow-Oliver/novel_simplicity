@@ -2,6 +2,7 @@ package com.zua.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zua.core.auth.UserHolder;
 import com.zua.core.common.constant.ErrorCodeEnum;
 import com.zua.core.common.exception.BusinessException;
 import com.zua.core.common.resp.RestResp;
@@ -9,8 +10,10 @@ import com.zua.core.constant.SystemConfigConsts;
 import com.zua.core.util.JwtUtils;
 import com.zua.dao.entity.UserInfo;
 import com.zua.dao.mapper.UserInfoMapper;
+import com.zua.dto.req.UserInfoUptReqDto;
 import com.zua.dto.req.UserLoginReqDto;
 import com.zua.dto.req.UserRegisterReqDto;
+import com.zua.dto.resp.UserInfoRespDto;
 import com.zua.dto.resp.UserLoginRespDto;
 import com.zua.dto.resp.UserRegisterRespDto;
 import com.zua.manager.redis.VerifyCodeManager;
@@ -93,5 +96,33 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
                 .uid(id)
                 .token(jwtUtils.generateToken(id,SystemConfigConsts.NOVEL_FRONT_KEY))
                 .build());
+    }
+
+    @Override
+    public RestResp<UserInfoRespDto> getUserInfo() {
+        //更加ThreadLocal获取用户Id
+        Long userId = UserHolder.getUserId();
+        UserInfo userInfo = getById(userId);
+
+        return RestResp.ok(UserInfoRespDto.builder()
+                .nickName(userInfo.getNickName())
+                .userPhoto(userInfo.getUserPhoto())
+                .userSex(userInfo.getUserSex())
+                .build());
+    }
+
+    @Override
+    public RestResp<Void> updateUserInfo(UserInfoUptReqDto dto) {
+        //获取用户Id
+        Long userId = UserHolder.getUserId();
+        dto.setUserId(userId);
+        //修改用户信息
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(userId);
+        userInfo.setNickName(dto.getNickName());
+        userInfo.setUserPhoto(dto.getUserPhoto());
+        userInfo.setUserSex(dto.getUserSex());
+        updateById(userInfo);
+        return RestResp.ok();
     }
 }

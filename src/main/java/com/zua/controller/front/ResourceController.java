@@ -6,10 +6,8 @@ import com.zua.core.constant.ApiRouterConsts;
 import com.zua.dto.resp.ImgVerifyCodeRespDto;
 import com.zua.service.ResourceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -24,8 +22,23 @@ public class ResourceController {
 
     private final ResourceService resourceService;
 
+    /**
+     * 生成验证码
+     * @return
+     * @throws IOException
+     */
     @GetMapping("img_verify_code")
     public RestResp<ImgVerifyCodeRespDto> imgVerifyCode() throws IOException {
         return resourceService.imgVerifyCode();
+    }
+
+    /**
+     * 上传图片
+     * @param file
+     * @return
+     */
+    @PostMapping("image")
+    public RestResp<String> uploadImg(@RequestParam("file") MultipartFile file){
+        return resourceService.uploadImg(file);
     }
 }
