@@ -22,6 +22,10 @@ public class NewsController {
 
     private final NewsService newsService;
 
+    /**
+     * 最新新闻查询
+     * @return
+     */
     @GetMapping("latest_list")
     public RestResp<List<NewsInfoRespDto>> latestList(){
         return newsService.latestList();

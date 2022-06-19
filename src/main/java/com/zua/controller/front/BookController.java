@@ -2,11 +2,13 @@ package com.zua.controller.front;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.core.constant.ApiRouterConsts;
+import com.zua.dto.resp.BookInfoRespDto;
 import com.zua.dto.resp.BookRankRespDto;
 import com.zua.dto.resp.UserInfoRespDto;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,4 +50,16 @@ public class BookController {
     public RestResp<List<BookRankRespDto>> updateRankBooks() {
         return bookService.listUpdateRankBooks();
     }
+
+    @GetMapping("{id}")
+    public RestResp<BookInfoRespDto> getBookInfoById(@PathVariable("id") String bookId){
+        return bookService.getBookInfoById(bookId);
+    }
+
+    @GetMapping("rec_list")
+    public RestResp recList(Long bookId){
+        return RestResp.ok();
+    }
+
+
 }

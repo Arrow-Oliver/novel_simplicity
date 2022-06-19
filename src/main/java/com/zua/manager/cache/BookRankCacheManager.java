@@ -7,6 +7,7 @@ import com.zua.dao.entity.BookInfo;
 import com.zua.dao.entity.UserInfo;
 import com.zua.dao.mapper.BookInfoMapper;
 import com.zua.dao.mapper.UserInfoMapper;
+import com.zua.dto.resp.BookInfoRespDto;
 import com.zua.dto.resp.BookRankRespDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -62,4 +63,5 @@ public class BookRankCacheManager {
         queryWrapper.orderByDesc(BookInfo::getLastChapterUpdateTime);
         return rankBooks(queryWrapper);
     }
+
 }

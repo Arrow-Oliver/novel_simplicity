@@ -24,11 +24,19 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    /**
+     * 首页书籍查询
+     * @return
+     */
     @GetMapping("books")
     public RestResp<List<HomeBookRespDto>> homeBooks(){
         return homeService.homeBooks();
     }
 
+    /**
+     * 友联查询
+     * @return
+     */
     @GetMapping("friend_Link/list")
     public RestResp<List<HomeFriendLinkRespDto>> friendLinkList(){
         return homeService.friendLinkList();

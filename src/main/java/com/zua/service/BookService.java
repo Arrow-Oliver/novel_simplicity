@@ -1,6 +1,7 @@
 package com.zua.service;
 
 import com.zua.core.common.resp.RestResp;
+import com.zua.dto.resp.BookInfoRespDto;
 import com.zua.dto.resp.BookRankRespDto;
 
 import java.util.List;
@@ -29,4 +30,10 @@ public interface BookService {
      */
     RestResp<List<BookRankRespDto>> listUpdateRankBooks();
 
+    /**
+     * 书籍详情
+     * @param bookId
+     * @return
+     */
+    RestResp<BookInfoRespDto> getBookInfoById(String bookId);
 }
