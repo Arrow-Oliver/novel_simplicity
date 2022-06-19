@@ -1,5 +1,7 @@
 package com.zua.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -7,41 +9,39 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 小说评论回复
+ * 友情链接
  * </p>
  *
  * @author xiongxiaoyang
  * @date 2022/05/11
  */
-@TableName("book_comment_reply")
-public class BookCommentReply implements Serializable {
+@TableName("home_friend_link")
+public class HomeFriendLink implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键
-     */
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 评论ID
+     * 链接名
      */
-    private Long commentId;
+    private String linkName;
 
     /**
-     * 回复用户ID
+     * 链接url
      */
-    private Long userId;
+    private String linkUrl;
 
     /**
-     * 回复内容
+     * 排序号
      */
-    private String replyContent;
+    private Integer sort;
 
     /**
-     * 审核状态;0-待审核 1-审核通过 2-审核不通过
+     * 是否开启;0-不开启 1-开启
      */
-    private Integer auditStatus;
+    private Integer isOpen;
 
     /**
      * 创建时间
@@ -62,36 +62,36 @@ public class BookCommentReply implements Serializable {
         this.id = id;
     }
 
-    public Long getCommentId() {
-        return commentId;
+    public String getLinkName() {
+        return linkName;
     }
 
-    public void setCommentId(Long commentId) {
-        this.commentId = commentId;
+    public void setLinkName(String linkName) {
+        this.linkName = linkName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getLinkUrl() {
+        return linkUrl;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl;
     }
 
-    public String getReplyContent() {
-        return replyContent;
+    public Integer getSort() {
+        return sort;
     }
 
-    public void setReplyContent(String replyContent) {
-        this.replyContent = replyContent;
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 
-    public Integer getAuditStatus() {
-        return auditStatus;
+    public Integer getIsOpen() {
+        return isOpen;
     }
 
-    public void setAuditStatus(Integer auditStatus) {
-        this.auditStatus = auditStatus;
+    public void setIsOpen(Integer isOpen) {
+        this.isOpen = isOpen;
     }
 
     public LocalDateTime getCreateTime() {
@@ -112,12 +112,12 @@ public class BookCommentReply implements Serializable {
 
     @Override
     public String toString() {
-        return "BookCommentReply{" +
+        return "HomeFriendLink{" +
         "id=" + id +
-        ", commentId=" + commentId +
-        ", userId=" + userId +
-        ", replyContent=" + replyContent +
-        ", auditStatus=" + auditStatus +
+        ", linkName=" + linkName +
+        ", linkUrl=" + linkUrl +
+        ", sort=" + sort +
+        ", isOpen=" + isOpen +
         ", createTime=" + createTime +
         ", updateTime=" + updateTime +
         "}";

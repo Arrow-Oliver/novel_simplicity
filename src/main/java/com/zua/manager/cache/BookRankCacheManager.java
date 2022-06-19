@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @RequiredArgsConstructor
-public class BookCacheRankManager {
+public class BookRankCacheManager {
 
     private final BookInfoMapper bookInfoMapper;
 

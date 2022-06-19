@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zua.dao.mapper.HomeBookMapper">
+
+    <select id="findHomeBooks" resultType="com.zua.dto.resp.HomeBookRespDto">
+    SELECT
+	hb.type,hb.book_id,bi.pic_url,bi.book_name,bi.author_name,bi.book_desc
+    FROM
+	home_book hb
+	JOIN book_info bi ON hb.book_id = bi.id
+    ORDER BY hb.sort
+    ASC
+    </select>
+</mapper>

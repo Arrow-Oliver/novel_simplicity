@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 小说内容
+ * 新闻信息
  * </p>
  *
  * @author xiongxiaoyang
- * @date 2022/05/11
+ * @date 2022/05/12
  */
-@TableName("book_content")
-public class BookContent implements Serializable {
+@TableName("news_info")
+public class NewsInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -27,17 +27,33 @@ public class BookContent implements Serializable {
     private Long id;
 
     /**
-     * 章节ID
+     * 类别ID
      */
-    private Long chapterId;
+    private Long categoryId;
 
     /**
-     * 小说章节内容
+     * 类别名
      */
-    private String content;
+    private String categoryName;
 
+    /**
+     * 新闻来源
+     */
+    private String sourceName;
+
+    /**
+     * 新闻标题
+     */
+    private String title;
+
+    /**
+     * 创建时间
+     */
     private LocalDateTime createTime;
 
+    /**
+     * 更新时间
+     */
     private LocalDateTime updateTime;
 
 
@@ -49,20 +65,36 @@ public class BookContent implements Serializable {
         this.id = id;
     }
 
-    public Long getChapterId() {
-        return chapterId;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setChapterId(Long chapterId) {
-        this.chapterId = chapterId;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public String getContent() {
-        return content;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public LocalDateTime getCreateTime() {
@@ -83,10 +115,12 @@ public class BookContent implements Serializable {
 
     @Override
     public String toString() {
-        return "BookContent{" +
+        return "NewsInfo{" +
         "id=" + id +
-        ", chapterId=" + chapterId +
-        ", content=" + content +
+        ", categoryId=" + categoryId +
+        ", categoryName=" + categoryName +
+        ", sourceName=" + sourceName +
+        ", title=" + title +
         ", createTime=" + createTime +
         ", updateTime=" + updateTime +
         "}";

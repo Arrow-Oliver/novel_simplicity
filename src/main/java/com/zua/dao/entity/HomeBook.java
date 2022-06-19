@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 小说类别
+ * 小说推荐
  * </p>
  *
  * @author xiongxiaoyang
  * @date 2022/05/12
  */
-@TableName("book_category")
-public class BookCategory implements Serializable {
+@TableName("home_book")
+public class HomeBook implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,19 +24,19 @@ public class BookCategory implements Serializable {
     private Long id;
 
     /**
-     * 作品方向;0-男频 1-女频
+     * 推荐类型;0-轮播图 1-顶部栏 2-本周强推 3-热门推荐 4-精品推荐
      */
-    private Integer workDirection;
+    private Integer type;
 
     /**
-     * 类别名
-     */
-    private String name;
-
-    /**
-     * 排序
+     * 推荐排序
      */
     private Integer sort;
+
+    /**
+     * 推荐小说ID
+     */
+    private Long bookId;
 
     /**
      * 创建时间
@@ -57,20 +57,12 @@ public class BookCategory implements Serializable {
         this.id = id;
     }
 
-    public Integer getWorkDirection() {
-        return workDirection;
+    public Integer getType() {
+        return type;
     }
 
-    public void setWorkDirection(Integer workDirection) {
-        this.workDirection = workDirection;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Integer getSort() {
@@ -79,6 +71,14 @@ public class BookCategory implements Serializable {
 
     public void setSort(Integer sort) {
         this.sort = sort;
+    }
+
+    public Long getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(Long bookId) {
+        this.bookId = bookId;
     }
 
     public LocalDateTime getCreateTime() {
@@ -99,11 +99,11 @@ public class BookCategory implements Serializable {
 
     @Override
     public String toString() {
-        return "BookCategory{" +
+        return "HomeBook{" +
         "id=" + id +
-        ", workDirection=" + workDirection +
-        ", name=" + name +
+        ", type=" + type +
         ", sort=" + sort +
+        ", bookId=" + bookId +
         ", createTime=" + createTime +
         ", updateTime=" + updateTime +
         "}";

@@ -2,7 +2,7 @@ package com.zua.service.impl;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.dto.resp.BookRankRespDto;
-import com.zua.manager.cache.BookCacheRankManager;
+import com.zua.manager.cache.BookRankCacheManager;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-    private final BookCacheRankManager bookCacheRankManager;
+    private final BookRankCacheManager bookCacheRankManager;
 
     @Override
     public RestResp<List<BookRankRespDto>> visitRankBooks() {
