@@ -13,6 +13,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Arrow
  * @date 2022/6/19 17:18
@@ -42,5 +45,18 @@ public class BookInfoCacheManager {
         bookInfoRespDto.setFirstChapterId(firstChapter.getId());
         //封装信息
         return bookInfoRespDto;
+    }
+
+    @Cacheable(cacheManager = CacheConsts.CAFFEINE_CACHE_MANAGER,
+            value = CacheConsts.LAST_UPDATE_BOOK_ID_LIST_CACHE_NAME)
+    public List<Long> getBookCategories(Long categoryId) {
+        LambdaQueryWrapper<BookInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookInfo::getCategoryId,categoryId)
+                .orderByDesc(BookInfo::getLastChapterUpdateTime)
+                .gt(BookInfo::getWordCount,0)
+                .last(DatabaseConsts.SqlEnum.LIMIT_500.getSql());
+        return bookInfoMapper.selectList(queryWrapper).stream()
+                .map(BookInfo::getId)
+                .collect(Collectors.toList());
     }
 }

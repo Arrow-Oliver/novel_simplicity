@@ -2,9 +2,7 @@ package com.zua.controller.front;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.core.constant.ApiRouterConsts;
-import com.zua.dto.resp.BookInfoRespDto;
-import com.zua.dto.resp.BookRankRespDto;
-import com.zua.dto.resp.UserInfoRespDto;
+import com.zua.dto.resp.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -57,8 +56,13 @@ public class BookController {
     }
 
     @GetMapping("rec_list")
-    public RestResp recList(Long bookId){
-        return RestResp.ok();
+    public RestResp<List<BookInfoRespDto>> recList(Long bookId) throws NoSuchAlgorithmException {
+        return bookService.recList(bookId);
+    }
+
+    @GetMapping("last_chapter/about")
+    public RestResp<BookChapterAboutRespDto> lastChapterAbout(Long bookId){
+        return bookService.lastChapterAbout(bookId);
     }
 
 

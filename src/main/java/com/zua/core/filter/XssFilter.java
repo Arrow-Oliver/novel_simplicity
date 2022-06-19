@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class XssFilter implements Filter {
 
-
     private final XssProperties xssProperties;
 
     @Override
