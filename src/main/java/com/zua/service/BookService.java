@@ -1,10 +1,7 @@
 package com.zua.service;
 
 import com.zua.core.common.resp.RestResp;
-import com.zua.dto.resp.BookChapterAboutRespDto;
-import com.zua.dto.resp.BookCommentRespDto;
-import com.zua.dto.resp.BookInfoRespDto;
-import com.zua.dto.resp.BookRankRespDto;
+import com.zua.dto.resp.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -60,4 +57,32 @@ public interface BookService {
      * @return
      */
     RestResp<BookCommentRespDto> listNewestComments(Long bookId);
+
+    /**
+     * 小说内容相关信息查询接口
+     * @param chapterId
+     * @return
+     */
+    RestResp<BookContentAboutRespDto> getBookContentAbout(Long chapterId);
+
+    /**
+     * 获取上一章Id
+     * @param chapterId
+     * @return
+     */
+    RestResp<Long> getPreChapterId(Long chapterId);
+
+    /**
+     * 获取下一章Id
+     * @param chapterId
+     * @return
+     */
+    RestResp<Long> getNextChapterId(Long chapterId);
+
+    /**
+     * 查询章节列表
+     * @param bookId
+     * @return
+     */
+    RestResp<List<BookChapterRespDto>> listChapters(Long bookId);
 }

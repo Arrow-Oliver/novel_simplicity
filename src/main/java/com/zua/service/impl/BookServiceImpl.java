@@ -2,6 +2,7 @@ package com.zua.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zua.core.common.resp.RestResp;
+import com.zua.core.constant.DatabaseConsts;
 import com.zua.dao.entity.BookChapter;
 import com.zua.dao.entity.BookComment;
 import com.zua.dao.entity.UserInfo;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -117,12 +115,12 @@ public class BookServiceImpl implements BookService {
     public RestResp<BookCommentRespDto> listNewestComments(Long bookId) {
         //查询评论总数
         LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BookComment::getBookId,bookId);
+        queryWrapper.eq(BookComment::getBookId, bookId);
         Long commentTotal = bookCommentMapper.selectCount(queryWrapper);
         BookCommentRespDto bookCommentRespDto = BookCommentRespDto.builder().build();
         bookCommentRespDto.setCommentTotal(commentTotal);
         //如果没有数据
-        if(commentTotal == 0){
+        if (commentTotal == 0) {
             bookCommentRespDto.setComments(Collections.emptyList());
             return RestResp.ok(bookCommentRespDto);
         }
@@ -136,17 +134,72 @@ public class BookServiceImpl implements BookService {
                 .collect(Collectors.toMap(UserInfo::getId, Function.identity()));
         //封装信息
         List<BookCommentRespDto.CommentInfo> commentInfos = bookComments.stream().map(v ->
-            BookCommentRespDto.CommentInfo.builder()
-                    .id(v.getId())
-                    .commentContent(v.getCommentContent())
-                    .commentTime(v.getCreateTime())
-                    .commentUser(userInfoMap.get(v.getUserId()).getUsername())
-                    .commentUserId(v.getUserId())
-                    .commentUserPhoto(userInfoMap.get(v.getUserId()).getUserPhoto())
-                    .build()).collect(Collectors.toList());
+                BookCommentRespDto.CommentInfo.builder()
+                        .id(v.getId())
+                        .commentContent(v.getCommentContent())
+                        .commentTime(v.getCreateTime())
+                        .commentUser(userInfoMap.get(v.getUserId()).getUsername())
+                        .commentUserId(v.getUserId())
+                        .commentUserPhoto(userInfoMap.get(v.getUserId()).getUserPhoto())
+                        .build()).collect(Collectors.toList());
 
         bookCommentRespDto.setComments(commentInfos);
 
         return RestResp.ok(bookCommentRespDto);
+    }
+
+    @Override
+    public RestResp<BookContentAboutRespDto> getBookContentAbout(Long chapterId) {
+        //查询章节信息
+        BookChapterRespDto chapterInfo = bookChapterCacheManager.getLastChapterInfo(chapterId);
+        //查询小说信息
+        BookInfoRespDto bookInfo = bookInfoCacheManager.getBookInfoById(chapterInfo.getBookId().toString());
+        //查询章节内容
+        String chapterContent = bookContentCacheManager.getLastChapterContent(chapterId);
+
+        //封装数据
+        return RestResp.ok(BookContentAboutRespDto.builder()
+                .bookContent(chapterContent)
+                .bookInfo(bookInfo)
+                .chapterInfo(chapterInfo)
+                .build()
+        );
+    }
+
+    @Override
+    public RestResp<Long> getPreChapterId(Long chapterId) {
+        //获取当前章节信息
+        BookChapterRespDto chapterInfo = bookChapterCacheManager.getLastChapterInfo(chapterId);
+        //寻找上一章ChapterId
+        LambdaQueryWrapper<BookChapter> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookChapter::getBookId, chapterInfo.getBookId())
+                .lt(BookChapter::getChapterNum, chapterInfo.getChapterNum())
+                .orderByDesc(BookChapter::getChapterNum)
+                .last(DatabaseConsts.SqlEnum.LIMIT_1.getSql());
+        return RestResp.ok(
+                Optional.ofNullable(bookChapterMapper.selectOne(queryWrapper))
+                        .map(BookChapter::getId)
+                        .orElse(null));
+    }
+
+    @Override
+    public RestResp<Long> getNextChapterId(Long chapterId) {
+        //获取当前章节信息
+        BookChapterRespDto chapterInfo = bookChapterCacheManager.getLastChapterInfo(chapterId);
+        //寻找下一章ChapterId
+        LambdaQueryWrapper<BookChapter> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookChapter::getBookId, chapterInfo.getBookId())
+                .gt(BookChapter::getChapterNum, chapterInfo.getChapterNum())
+                .orderByAsc(BookChapter::getChapterNum)
+                .last(DatabaseConsts.SqlEnum.LIMIT_1.getSql());
+        return RestResp.ok(
+                Optional.ofNullable(bookChapterMapper.selectOne(queryWrapper))
+                        .map(BookChapter::getId)
+                        .orElse(null));
+    }
+
+    @Override
+    public RestResp<List<BookChapterRespDto>> listChapters(Long bookId) {
+        return RestResp.ok(bookChapterCacheManager.getChapterByBookId(bookId));
     }
 }

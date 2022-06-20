@@ -11,6 +11,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 小说章节 缓存管理类
  *
@@ -32,5 +35,20 @@ public class BookChapterCacheManager {
         bookChapterRespDto.setChapterWordCount(lastChapter.getWordCount());
         bookChapterRespDto.setChapterUpdateTime(lastChapter.getUpdateTime());
         return bookChapterRespDto;
+    }
+
+    @Cacheable(cacheManager = CacheConsts.REDIS_CACHE_MANAGER,
+            value = CacheConsts.BOOK_CHAPTER_CACHE_NAME)
+    public List<BookChapterRespDto> getChapterByBookId(Long bookId) {
+
+        LambdaQueryWrapper<BookChapter> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookChapter::getBookId,bookId)
+                .orderByAsc(BookChapter::getChapterNum);
+
+        return bookChapterMapper.selectList(queryWrapper).stream().map(v ->{
+            BookChapterRespDto bookChapterRespDto = BookChapterRespDto.builder().build();
+            BeanUtils.copyProperties(v,bookChapterRespDto);
+            return bookChapterRespDto;
+        }).collect(Collectors.toList());
     }
 }
