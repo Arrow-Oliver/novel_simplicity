@@ -30,6 +30,6 @@ public class HomeServiceImpl implements HomeService {
 
     @Override
     public RestResp<List<HomeFriendLinkRespDto>> friendLinkList() {
-        return RestResp.ok(homeBookCacheManager.friendLinkList());
+        return RestResp.ok(friendLinkCacheManager.friendLinkList());
     }
 }

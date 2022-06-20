@@ -8,8 +8,10 @@ import com.zua.dao.entity.BookComment;
 import com.zua.dao.entity.UserInfo;
 import com.zua.dao.mapper.BookChapterMapper;
 import com.zua.dao.mapper.BookCommentMapper;
+import com.zua.dao.mapper.BookInfoMapper;
+import com.zua.dto.req.BookAddVisitReqDto;
 import com.zua.dto.resp.*;
-import com.zua.manager.Dao.UserDaoManager;
+import com.zua.manager.dao.UserDaoManager;
 import com.zua.manager.cache.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +41,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookContentCacheManager bookContentCacheManager;
 
+    private final BookCategoryCacheManager bookCategoryCacheManager;
+
     private final BookChapterMapper bookChapterMapper;
 
     private final BookCommentMapper bookCommentMapper;
+
+    private final BookInfoMapper bookInfoMapper;
 
     private final UserDaoManager userDaoManager;
 
@@ -201,5 +207,16 @@ public class BookServiceImpl implements BookService {
     @Override
     public RestResp<List<BookChapterRespDto>> listChapters(Long bookId) {
         return RestResp.ok(bookChapterCacheManager.getChapterByBookId(bookId));
+    }
+
+    @Override
+    public RestResp<Void> addVisitCount(BookAddVisitReqDto bookId) {
+        bookInfoMapper.addVisitCount(bookId.getBookId());
+        return RestResp.ok();
+    }
+
+    @Override
+    public RestResp<List<BookCategoryRespDto>> listCategory(Integer workDirection) {
+        return RestResp.ok(bookCategoryCacheManager.listCategory(workDirection));
     }
 }

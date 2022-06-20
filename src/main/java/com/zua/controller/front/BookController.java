@@ -2,13 +2,12 @@ package com.zua.controller.front;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.core.constant.ApiRouterConsts;
+import com.zua.dao.entity.BookInfo;
+import com.zua.dto.req.BookAddVisitReqDto;
 import com.zua.dto.resp.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -54,6 +53,14 @@ public class BookController {
     @GetMapping("rec_list")
     public RestResp<List<BookInfoRespDto>> recList(Long bookId) throws NoSuchAlgorithmException {
         return bookService.recList(bookId);
+    }
+
+    /**
+     * 增加小说点击量接口
+     */
+    @PostMapping("visit")
+    public RestResp<Void> addVisitCount(@RequestBody BookAddVisitReqDto bookAddVisitReqDto) {
+        return bookService.addVisitCount(bookAddVisitReqDto);
     }
 
     /**
@@ -113,4 +120,11 @@ public class BookController {
         return bookService.listChapters(bookId);
     }
 
+    /**
+     * 小说分类列表查询接口
+     */
+    @GetMapping("category/list")
+    public RestResp<List<BookCategoryRespDto>> listCategory(Integer workDirection) {
+        return bookService.listCategory(workDirection);
+    }
 }

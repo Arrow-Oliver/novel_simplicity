@@ -1,6 +1,7 @@
 package com.zua.service;
 
 import com.zua.core.common.resp.RestResp;
+import com.zua.dto.req.BookAddVisitReqDto;
 import com.zua.dto.resp.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -85,4 +86,18 @@ public interface BookService {
      * @return
      */
     RestResp<List<BookChapterRespDto>> listChapters(Long bookId);
+
+    /**
+     * 点击量增加
+     * @param bookId
+     * @return
+     */
+    RestResp<Void> addVisitCount(BookAddVisitReqDto bookId);
+
+    /**
+     * 分类查询
+     * @param workDirection
+     * @return
+     */
+    RestResp<List<BookCategoryRespDto>> listCategory(Integer workDirection);
 }

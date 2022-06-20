@@ -8,5 +8,10 @@ import com.zua.dao.entity.BookInfo;
  * @date 2022/6/18 18:03
  */
 public interface BookInfoMapper extends BaseMapper<BookInfo> {
+    /**
+     * 浏览量增加
+     * @param bookId
+     */
+    void addVisitCount(Long bookId);
 
 }

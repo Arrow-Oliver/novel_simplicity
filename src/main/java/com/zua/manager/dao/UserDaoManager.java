@@ -1,6 +1,5 @@
-package com.zua.manager.Dao;
+package com.zua.manager.dao;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zua.dao.entity.UserInfo;
 import com.zua.dao.mapper.UserInfoMapper;
 import lombok.RequiredArgsConstructor;

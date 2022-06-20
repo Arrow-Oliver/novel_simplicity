@@ -74,17 +74,4 @@ public class HomeBookCacheManager {
 
 //        return homeBookMapper.findHomeBooks();
     }
-
-    @Cacheable(cacheManager = CacheConsts.REDIS_CACHE_MANAGER,
-            value = CacheConsts.HOME_FRIEND_LINK_CACHE_NAME)
-    public List<HomeFriendLinkRespDto> friendLinkList() {
-        LambdaQueryWrapper<HomeFriendLink> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.orderByAsc(HomeFriendLink::getSort);
-
-        return homeFriendLinkMapper.selectList(queryWrapper).stream().map(v -> {
-            HomeFriendLinkRespDto homeFriendLinkRespDto = new HomeFriendLinkRespDto();
-            BeanUtils.copyProperties(v, homeFriendLinkRespDto);
-            return homeFriendLinkRespDto;
-        }).collect(Collectors.toList());
-    }
 }
