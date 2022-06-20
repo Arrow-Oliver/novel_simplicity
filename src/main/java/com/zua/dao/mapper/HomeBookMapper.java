@@ -13,6 +13,7 @@ import java.util.List;
 public interface HomeBookMapper extends BaseMapper<HomeBook> {
     /**
      * 升序查找书籍
+     * @return
      */
     List<HomeBookRespDto> findHomeBooks();
 
