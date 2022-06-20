@@ -6,6 +6,7 @@ import com.zua.dto.resp.NewsInfoRespDto;
 import com.zua.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +30,13 @@ public class NewsController {
     @GetMapping("latest_list")
     public RestResp<List<NewsInfoRespDto>> latestList(){
         return newsService.latestList();
+    }
+
+    /**
+     * 新闻信息查询接口
+     */
+    @GetMapping("{id}")
+    public RestResp<NewsInfoRespDto> getNews(@PathVariable Long id) {
+        return newsService.getNews(id);
     }
 }

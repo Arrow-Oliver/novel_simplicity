@@ -16,4 +16,10 @@ public interface NewsService {
      */
     RestResp<List<NewsInfoRespDto>> latestList();
 
+    /**
+     * 新闻详情
+     * @param id
+     * @return
+     */
+    RestResp<NewsInfoRespDto> getNews(Long id);
 }
