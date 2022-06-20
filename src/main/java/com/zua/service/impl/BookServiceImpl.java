@@ -3,15 +3,13 @@ package com.zua.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zua.core.common.resp.RestResp;
 import com.zua.dao.entity.BookChapter;
+import com.zua.dao.entity.BookComment;
+import com.zua.dao.entity.UserInfo;
 import com.zua.dao.mapper.BookChapterMapper;
-import com.zua.dto.resp.BookChapterAboutRespDto;
-import com.zua.dto.resp.BookChapterRespDto;
-import com.zua.dto.resp.BookInfoRespDto;
-import com.zua.dto.resp.BookRankRespDto;
-import com.zua.manager.cache.BookChapterCacheManager;
-import com.zua.manager.cache.BookContentCacheManager;
-import com.zua.manager.cache.BookInfoCacheManager;
-import com.zua.manager.cache.BookRankCacheManager;
+import com.zua.dao.mapper.BookCommentMapper;
+import com.zua.dto.resp.*;
+import com.zua.manager.Dao.UserDaoManager;
+import com.zua.manager.cache.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,11 @@ import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Arrow
@@ -40,6 +42,10 @@ public class BookServiceImpl implements BookService {
     private final BookContentCacheManager bookContentCacheManager;
 
     private final BookChapterMapper bookChapterMapper;
+
+    private final BookCommentMapper bookCommentMapper;
+
+    private final UserDaoManager userDaoManager;
 
     @Override
     public RestResp<List<BookRankRespDto>> visitRankBooks() {
@@ -105,5 +111,42 @@ public class BookServiceImpl implements BookService {
             }
         }
         return RestResp.ok(respDtoList);
+    }
+
+    @Override
+    public RestResp<BookCommentRespDto> listNewestComments(Long bookId) {
+        //查询评论总数
+        LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookComment::getBookId,bookId);
+        Long commentTotal = bookCommentMapper.selectCount(queryWrapper);
+        BookCommentRespDto bookCommentRespDto = BookCommentRespDto.builder().build();
+        bookCommentRespDto.setCommentTotal(commentTotal);
+        //如果没有数据
+        if(commentTotal == 0){
+            bookCommentRespDto.setComments(Collections.emptyList());
+            return RestResp.ok(bookCommentRespDto);
+        }
+        //查询前五条评论
+        queryWrapper.orderByDesc(BookComment::getCreateTime);
+        List<BookComment> bookComments = bookCommentMapper.selectList(queryWrapper);
+        //查询用户信息
+        List<Long> userIds = bookComments.stream().map(BookComment::getUserId).collect(Collectors.toList());
+        List<UserInfo> userInfos = userDaoManager.getUserInfo(userIds);
+        Map<Long, UserInfo> userInfoMap = userInfos.stream()
+                .collect(Collectors.toMap(UserInfo::getId, Function.identity()));
+        //封装信息
+        List<BookCommentRespDto.CommentInfo> commentInfos = bookComments.stream().map(v ->
+            BookCommentRespDto.CommentInfo.builder()
+                    .id(v.getId())
+                    .commentContent(v.getCommentContent())
+                    .commentTime(v.getCreateTime())
+                    .commentUser(userInfoMap.get(v.getUserId()).getUsername())
+                    .commentUserId(v.getUserId())
+                    .commentUserPhoto(userInfoMap.get(v.getUserId()).getUserPhoto())
+                    .build()).collect(Collectors.toList());
+
+        bookCommentRespDto.setComments(commentInfos);
+
+        return RestResp.ok(bookCommentRespDto);
     }
 }

@@ -2,6 +2,7 @@ package com.zua.service;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.dto.resp.BookChapterAboutRespDto;
+import com.zua.dto.resp.BookCommentRespDto;
 import com.zua.dto.resp.BookInfoRespDto;
 import com.zua.dto.resp.BookRankRespDto;
 
@@ -52,4 +53,11 @@ public interface BookService {
      * @return
      */
     RestResp<List<BookInfoRespDto>> recList(Long bookId) throws NoSuchAlgorithmException;
+
+    /**
+     * 查询最新评论
+     * @param bookId
+     * @return
+     */
+    RestResp<BookCommentRespDto> listNewestComments(Long bookId);
 }
