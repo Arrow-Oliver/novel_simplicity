@@ -8,4 +8,40 @@
         WHERE
 	    id = #{id}
     </update>
+    <select id="searchBooks" resultType="com.zua.dao.entity.BookInfo">
+        SELECT
+	    id,category_id,category_name,book_name,author_id,author_name,word_count,last_chapter_name
+        FROM
+	    book_info
+        WHERE
+	    word_count > 0
+        <if test="condition.keyword !=null and condition.keyword !=''">
+        AND (book_name LIKE CONCAT('%',#{condition.keyword},'%'))
+        OR (author_name LIKE CONCAT('%',#{condition.keyword},'%'))
+        </if>
+        <if test="condition.workDirection !=null">
+        AND work_direction = #{condition.workDirection}
+        </if>
+        <if test="condition.categoryId !=null">
+        AND category_id = #{condition.categoryId}
+        </if>
+        <if test="condition.isVip !=null">
+        AND is_vip = #{condition.isVip}
+        </if>
+        <if test="condition.bookStatus !=null">
+        AND book_status = #{condition.bookStatus}
+        </if>
+        <if test="condition.wordCountMin !=null">
+        AND word_count >= #{condition.wordCountMin}
+        </if>
+        <if test="condition.wordCountMax !=null">
+        AND word_count <![CDATA[ < ]]> #{condition.wordCountMax}
+        </if>
+        <if test="condition.updateTimeMin != null">
+        AND last_chapter_update_time >= #{condition.updateTimeMin}
+        </if>
+        <if test="condition.sort != null">
+        ORDER BY ${condition.sort}
+        </if>
+    </select>
 </mapper>
