@@ -1,7 +1,11 @@
 package com.zua.service;
 
+import com.zua.core.common.req.PageReqDto;
+import com.zua.core.common.resp.PageRespDto;
 import com.zua.core.common.resp.RestResp;
+import com.zua.dto.req.BookAddReqDto;
 import com.zua.dto.req.BookAddVisitReqDto;
+import com.zua.dto.req.ChapterAddReqDto;
 import com.zua.dto.req.UserCommentReqDto;
 import com.zua.dto.resp.*;
 
@@ -126,4 +130,32 @@ public interface BookService {
      */
     RestResp<Void> updateComment(Long userId, Long id, String content);
 
+    /**
+     * 发表小说
+     * @param dto
+     * @return
+     */
+    RestResp<Void> saveBook(BookAddReqDto dto);
+
+    /**
+     * 查询小说列表
+     * @param dto
+     * @return
+     */
+    RestResp<PageRespDto<BookInfoRespDto>> listAuthorBooks(PageReqDto dto);
+
+    /**
+     * 作者章节查询
+     * @param bookId
+     * @param dto
+     * @return
+     */
+    RestResp<PageRespDto<BookChapterRespDto>> listBookChapters(Long bookId, PageReqDto dto);
+
+    /**
+     * 新增章节
+     * @param dto
+     * @return
+     */
+    RestResp<Void> saveBookChapter(ChapterAddReqDto dto);
 }

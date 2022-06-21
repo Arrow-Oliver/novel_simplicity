@@ -10,6 +10,7 @@ import com.zua.dao.mapper.BookInfoMapper;
 import com.zua.dto.resp.BookInfoRespDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -58,5 +59,10 @@ public class BookInfoCacheManager {
         return bookInfoMapper.selectList(queryWrapper).stream()
                 .map(BookInfo::getId)
                 .collect(Collectors.toList());
+    }
+    @CacheEvict(cacheManager = CacheConsts.CAFFEINE_CACHE_MANAGER,
+            value = CacheConsts.BOOK_INFO_CACHE_NAME)
+    public void evictBookInfoCache(Long bookId) {
+
     }
 }

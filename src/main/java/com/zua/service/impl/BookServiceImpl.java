@@ -1,24 +1,35 @@
 package com.zua.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sun.org.apache.bcel.internal.generic.LADD;
+import com.zua.core.auth.UserHolder;
 import com.zua.core.common.constant.ErrorCodeEnum;
+import com.zua.core.common.req.PageReqDto;
+import com.zua.core.common.resp.PageRespDto;
 import com.zua.core.common.resp.RestResp;
 import com.zua.core.constant.DatabaseConsts;
-import com.zua.dao.entity.BookChapter;
-import com.zua.dao.entity.BookComment;
-import com.zua.dao.entity.UserInfo;
+import com.zua.dao.entity.*;
 import com.zua.dao.mapper.BookChapterMapper;
 import com.zua.dao.mapper.BookCommentMapper;
+import com.zua.dao.mapper.BookContentMapper;
 import com.zua.dao.mapper.BookInfoMapper;
+import com.zua.dto.AuthorInfoDto;
+import com.zua.dto.req.BookAddReqDto;
 import com.zua.dto.req.BookAddVisitReqDto;
+import com.zua.dto.req.ChapterAddReqDto;
 import com.zua.dto.req.UserCommentReqDto;
 import com.zua.dto.resp.*;
 import com.zua.manager.dao.UserDaoManager;
 import com.zua.manager.cache.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -47,9 +58,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookCategoryCacheManager bookCategoryCacheManager;
 
+    private final AuthorInfoCacheManager authorInfoCacheManager;
+
     private final BookChapterMapper bookChapterMapper;
 
     private final BookCommentMapper bookCommentMapper;
+
+    private final BookContentMapper bookContentMapper;
 
     private final BookInfoMapper bookInfoMapper;
 
@@ -264,4 +279,135 @@ public class BookServiceImpl implements BookService {
         bookCommentMapper.update(bookComment,queryWrapper);
         return RestResp.ok();
     }
+
+    @Override
+    public RestResp<Void> saveBook(BookAddReqDto dto) {
+        //书名不能相同
+        LambdaQueryWrapper<BookInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookInfo::getBookName,dto.getBookName())
+                .last(DatabaseConsts.SqlEnum.LIMIT_1.getSql());
+        if(bookInfoMapper.selectCount(queryWrapper) > 0){
+            return RestResp.fail(ErrorCodeEnum.AUTHOR_BOOK_NAME_EXIST);
+        }
+        //设置作者信息
+        BookInfo bookInfo = new BookInfo();
+        AuthorInfoDto authorInfo = authorInfoCacheManager.getAuthorInfo(UserHolder.getUserId());
+        bookInfo.setAuthorId(authorInfo.getId());
+        bookInfo.setAuthorName(authorInfo.getPenName());
+        //设置其他信息
+        bookInfo.setWorkDirection(dto.getWorkDirection());
+        bookInfo.setCategoryId(dto.getCategoryId());
+        bookInfo.setCategoryName(dto.getCategoryName());
+        bookInfo.setBookName(dto.getBookName());
+        bookInfo.setPicUrl(dto.getPicUrl());
+        bookInfo.setBookDesc(dto.getBookDesc());
+        bookInfo.setIsVip(dto.getIsVip());
+        bookInfo.setScore(0);
+        bookInfo.setCreateTime(LocalDateTime.now());
+        bookInfo.setUpdateTime(LocalDateTime.now());
+        bookInfoMapper.insert(bookInfo);
+        return RestResp.ok();
+    }
+
+    @Override
+    public RestResp<PageRespDto<BookInfoRespDto>> listAuthorBooks(PageReqDto dto) {
+        Page<BookInfo> bookInfoPage = new Page<>();
+        bookInfoPage.setCurrent(dto.getPageNum());
+        bookInfoPage.setSize(dto.getPageSize());
+        LambdaQueryWrapper<BookInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookInfo::getAuthorId, UserHolder.getAuthorId())
+                .orderByDesc(BookInfo::getCreateTime);
+        bookInfoMapper.selectPage(bookInfoPage,queryWrapper);
+        return RestResp.ok(PageRespDto.of(dto.getPageNum(), dto.getPageSize(), bookInfoPage.getTotal(),
+                bookInfoPage.getRecords().stream().map(v -> BookInfoRespDto.builder()
+                        .id(v.getId())
+                        .bookName(v.getBookName())
+                        .picUrl(v.getPicUrl())
+                        .categoryName(v.getCategoryName())
+                        .wordCount(v.getWordCount())
+                        .visitCount(v.getVisitCount())
+                        .updateTime(v.getUpdateTime())
+                        .build()).collect(Collectors.toList())));
+    }
+
+    @Override
+    public RestResp<PageRespDto<BookChapterRespDto>> listBookChapters(Long bookId, PageReqDto dto) {
+        //分页对象
+        Page<BookChapter> bookChapterPage = new Page<>();
+        bookChapterPage.setCurrent(dto.getPageNum());
+        bookChapterPage.setSize(dto.getPageSize());
+        //查询
+        LambdaQueryWrapper<BookChapter> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookChapter::getBookId,bookId)
+                .orderByAsc(BookChapter::getChapterNum);
+        bookChapterMapper.selectPage(bookChapterPage,queryWrapper);
+        //封装
+        return RestResp.ok(PageRespDto.of(bookChapterPage.getCurrent(),bookChapterPage.getSize(),bookChapterPage.getTotal(),
+                bookChapterPage.getRecords().stream().map(v ->BookChapterRespDto.builder()
+                        .id(v.getId())
+                        .chapterName(v.getChapterName())
+                        .chapterUpdateTime(v.getUpdateTime())
+                        .isVip(v.getIsVip())
+                        .build())
+                        .collect(Collectors.toList())
+        ));
+
+
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public RestResp<Void> saveBookChapter(ChapterAddReqDto dto) {
+        // 校验该作品是否属于当前作家
+        BookInfo bookInfo = bookInfoMapper.selectById(dto.getBookId());
+        if(!Objects.equals(bookInfo.getAuthorId(),UserHolder.getAuthorId())){
+            return RestResp.fail(ErrorCodeEnum.USER_UN_AUTH);
+        }
+        // 1) 保存章节相关信息到小说章节表
+        //  a) 查询最新章节号
+        int chapterNum = 0;
+        QueryWrapper<BookChapter> chapterQueryWrapper = new QueryWrapper<>();
+        chapterQueryWrapper.eq(DatabaseConsts.BookChapterTable.COLUMN_BOOK_ID, dto.getBookId())
+                .orderByDesc(DatabaseConsts.BookChapterTable.COLUMN_CHAPTER_NUM)
+                .last(DatabaseConsts.SqlEnum.LIMIT_1.getSql());
+        BookChapter lastChapterInfo = bookChapterMapper.selectOne(chapterQueryWrapper);
+        if(Objects.nonNull(lastChapterInfo)){
+            chapterNum = lastChapterInfo.getChapterNum() + 1;
+        }
+        //  b) 设置章节相关信息并保存
+        BookChapter bookChapter = new BookChapter();
+        bookChapter.setBookId(dto.getBookId());
+        bookChapter.setChapterName(dto.getChapterName());
+        bookChapter.setChapterNum(chapterNum);
+        bookChapter.setCreateTime(LocalDateTime.now());
+        bookChapter.setUpdateTime(LocalDateTime.now());
+        bookChapter.setIsVip(dto.getIsVip());
+        bookChapter.setWordCount(dto.getChapterContent().length());
+        bookChapterMapper.insert(bookChapter);
+        // 2) 保存章节内容到小说内容表
+        BookContent bookContent = new BookContent();
+        bookContent.setChapterId(bookChapter.getId());
+        bookContent.setContent(dto.getChapterContent());
+        bookContent.setCreateTime(LocalDateTime.now());
+        bookContent.setUpdateTime(LocalDateTime.now());
+        bookContentMapper.insert(bookContent);
+        // 3) 更新小说表最新章节信息和小说总字数信息
+        //  a) 更新小说表关于最新章节的信息
+        BookInfo newBookInfo = new BookInfo();
+        newBookInfo.setId(dto.getBookId());
+        newBookInfo.setLastChapterId(bookChapter.getId());
+        newBookInfo.setLastChapterName(bookChapter.getChapterName());
+        newBookInfo.setLastChapterUpdateTime(LocalDateTime.now());
+        newBookInfo.setWordCount(bookInfo.getWordCount() + bookChapter.getWordCount());
+        bookChapter.setUpdateTime(LocalDateTime.now());
+        bookInfoMapper.updateById(newBookInfo);
+        //  b) 清除小说信息缓存
+        bookInfoCacheManager.evictBookInfoCache(dto.getBookId());
+        //TODO  c) 发送小说信息更新的 MQ 消息
+
+        return RestResp.ok();
+    }
+
+
 }
