@@ -2,6 +2,7 @@ package com.zua.service;
 
 import com.zua.core.common.resp.RestResp;
 import com.zua.dto.req.BookAddVisitReqDto;
+import com.zua.dto.req.UserCommentReqDto;
 import com.zua.dto.resp.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -100,4 +101,29 @@ public interface BookService {
      * @return
      */
     RestResp<List<BookCategoryRespDto>> listCategory(Integer workDirection);
+
+    /**
+     * 发表评论
+     * @param dto
+     * @return
+     */
+    RestResp<Void> saveComment(UserCommentReqDto dto);
+
+    /**
+     * 删除评论
+     * @param userId 用户id
+     * @param id 评论id
+     * @return
+     */
+    RestResp<Void> deleteComment(Long userId, Long id);
+
+    /**
+     * 修改评论
+     * @param userId 用户Id
+     * @param id 评论id'
+     * @param content 评论内容
+     * @return
+     */
+    RestResp<Void> updateComment(Long userId, Long id, String content);
+
 }

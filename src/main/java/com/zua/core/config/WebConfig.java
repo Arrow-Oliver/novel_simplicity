@@ -1,6 +1,7 @@
 package com.zua.core.config;
 
 import com.zua.core.constant.ApiRouterConsts;
+import com.zua.core.constant.SystemConfigConsts;
 import com.zua.core.interceptor.AuthInterceptor;
 import com.zua.core.interceptor.FileInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         //文件拦截器
         registry.addInterceptor(fileInterceptor)
-                .addPathPatterns(ApiRouterConsts.API_FRONT_RESOURCE_URL_PREFIX + "/**");
-
+                .addPathPatterns(SystemConfigConsts.IMAGE_UPLOAD_DIRECTORY + "**");
 
         // 认证拦截器
         registry.addInterceptor(authInterceptor)

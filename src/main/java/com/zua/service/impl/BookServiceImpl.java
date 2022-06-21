@@ -1,6 +1,7 @@
 package com.zua.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zua.core.common.constant.ErrorCodeEnum;
 import com.zua.core.common.resp.RestResp;
 import com.zua.core.constant.DatabaseConsts;
 import com.zua.dao.entity.BookChapter;
@@ -10,15 +11,18 @@ import com.zua.dao.mapper.BookChapterMapper;
 import com.zua.dao.mapper.BookCommentMapper;
 import com.zua.dao.mapper.BookInfoMapper;
 import com.zua.dto.req.BookAddVisitReqDto;
+import com.zua.dto.req.UserCommentReqDto;
 import com.zua.dto.resp.*;
 import com.zua.manager.dao.UserDaoManager;
 import com.zua.manager.cache.*;
 import com.zua.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -218,5 +222,46 @@ public class BookServiceImpl implements BookService {
     @Override
     public RestResp<List<BookCategoryRespDto>> listCategory(Integer workDirection) {
         return RestResp.ok(bookCategoryCacheManager.listCategory(workDirection));
+    }
+
+    @Override
+    public RestResp<Void> saveComment(UserCommentReqDto dto) {
+        // 查找当亲用户是否评论过
+        LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookComment::getBookId,dto.getBookId())
+                .eq(BookComment::getUserId,dto.getUserId());
+        if(bookCommentMapper.selectCount(queryWrapper) > 0){
+            return RestResp.fail(ErrorCodeEnum.USER_COMMENTED);
+        }
+        //新增评论信息
+        BookComment bookComment = new BookComment();
+        bookComment.setBookId(dto.getBookId());
+        bookComment.setUserId(dto.getUserId());
+        bookComment.setCommentContent(dto.getCommentContent());
+        bookComment.setCreateTime(LocalDateTime.now());
+        bookComment.setUpdateTime(LocalDateTime.now());
+        bookCommentMapper.insert(bookComment);
+        return RestResp.ok();
+    }
+
+    @Override
+    public RestResp<Void> deleteComment(Long userId, Long id) {
+        LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookComment::getUserId,userId)
+                .eq(BookComment::getId,id);
+        bookCommentMapper.delete(queryWrapper);
+        return RestResp.ok();
+    }
+
+    @Override
+    public RestResp<Void> updateComment(Long userId, Long id, String content) {
+        LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BookComment::getUserId,userId)
+                .eq(BookComment::getId,id);
+        BookComment bookComment = new BookComment();
+        bookComment.setUpdateTime(LocalDateTime.now());
+        bookComment.setCommentContent(content);
+        bookCommentMapper.update(bookComment,queryWrapper);
+        return RestResp.ok();
     }
 }
