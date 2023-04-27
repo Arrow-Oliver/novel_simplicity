@@ -131,7 +131,12 @@ public enum ErrorCodeEnum {
     /**
      * 一级宏观错误码，中间件服务出错
      * */
-    MIDDLEWARE_SERVICE_ERROR("C0100","中间件服务出错")
+    MIDDLEWARE_SERVICE_ERROR("C0100","中间件服务出错"),
+
+    /**
+     * 用户被封禁
+     * */
+    USER_BAN_STATUS("A0702","用户已被封禁，如有疑问请联系管理员")
     ;
 
     /**

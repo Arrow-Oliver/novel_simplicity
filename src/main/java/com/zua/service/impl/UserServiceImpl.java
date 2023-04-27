@@ -6,6 +6,7 @@ import com.zua.core.auth.UserHolder;
 import com.zua.core.common.constant.ErrorCodeEnum;
 import com.zua.core.common.exception.BusinessException;
 import com.zua.core.common.resp.RestResp;
+import com.zua.core.constant.NumberConsts;
 import com.zua.core.constant.SystemConfigConsts;
 import com.zua.core.util.JwtUtils;
 import com.zua.dao.entity.UserInfo;
@@ -54,6 +55,9 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
        if(!Objects.equals(userInfo.getPassword(),
                DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes(StandardCharsets.UTF_8)))){
            throw new BusinessException(ErrorCodeEnum.USER_PASSWORD_ERROR);
+       }
+       if(userInfo.getStatus() == NumberConsts.USER_NO_STATUS){
+           throw new BusinessException(ErrorCodeEnum.USER_BAN_STATUS);
        }
         //返回respDTO
         return RestResp.ok(UserLoginRespDto.builder()

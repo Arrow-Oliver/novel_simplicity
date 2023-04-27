@@ -141,6 +141,7 @@ public class BookServiceImpl implements BookService {
         //查询评论总数
         LambdaQueryWrapper<BookComment> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BookComment::getBookId, bookId);
+        queryWrapper.eq(BookComment::getAuditStatus,1);
         Long commentTotal = bookCommentMapper.selectCount(queryWrapper);
         BookCommentRespDto bookCommentRespDto = BookCommentRespDto.builder().build();
         bookCommentRespDto.setCommentTotal(commentTotal);
