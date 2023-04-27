@@ -88,6 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
         userInfo.setPassword(DigestUtils.md5DigestAsHex(registerReqDto.getPassword().getBytes(StandardCharsets.UTF_8)));
         userInfo.setNickName(registerReqDto.getUsername());
         userInfo.setSalt("0");
+        userInfo.setStatus(1);
         userInfo.setCreateTime(LocalDateTime.now());
         userInfo.setUpdateTime(LocalDateTime.now());
         save(userInfo);
