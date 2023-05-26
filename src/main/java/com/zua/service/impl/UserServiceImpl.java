@@ -36,7 +36,7 @@ import java.util.Objects;
  */
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserService{
+public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserService {
 
     private final JwtUtils jwtUtils;
 
@@ -46,25 +46,25 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
     public RestResp<UserLoginRespDto> login(UserLoginReqDto userDto) {
         //判断用户是否存在
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserInfo::getUsername,userDto.getUsername());
+        queryWrapper.eq(UserInfo::getUsername, userDto.getUsername());
         UserInfo userInfo = getOne(queryWrapper);
-        if(Objects.isNull(userInfo)){
+        if (Objects.isNull(userInfo)) {
             throw new BusinessException(ErrorCodeEnum.USER_ACCOUNT_NOT_EXIST);
         }
         //判断密码是否正确
-       if(!Objects.equals(userInfo.getPassword(),
-               DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes(StandardCharsets.UTF_8)))){
-           throw new BusinessException(ErrorCodeEnum.USER_PASSWORD_ERROR);
-       }
-       if(userInfo.getStatus() == NumberConsts.USER_NO_STATUS){
-           throw new BusinessException(ErrorCodeEnum.USER_BAN_STATUS);
-       }
+        if (!Objects.equals(userInfo.getPassword(),
+            DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes(StandardCharsets.UTF_8)))) {
+            throw new BusinessException(ErrorCodeEnum.USER_PASSWORD_ERROR);
+        }
+        if (userInfo.getStatus() == NumberConsts.USER_NO_STATUS) {
+            throw new BusinessException(ErrorCodeEnum.USER_BAN_STATUS);
+        }
         //返回respDTO
         return RestResp.ok(UserLoginRespDto.builder()
-                .token(jwtUtils.generateToken(userInfo.getId(), SystemConfigConsts.NOVEL_FRONT_KEY))
-                .uid(userInfo.getId())
-                .nickName(userInfo.getNickName())
-                .build());
+            .token(jwtUtils.generateToken(userInfo.getId(), SystemConfigConsts.NOVEL_FRONT_KEY))
+            .uid(userInfo.getId())
+            .nickName(userInfo.getNickName())
+            .build());
 
     }
 
@@ -73,13 +73,13 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
         //校验验证码
         @NotBlank @Length(min = 32, max = 32) String sessionId = registerReqDto.getSessionId();
 
-        if (!verifyCodeManager.verifyCodeOk(sessionId,registerReqDto.getVelCode())) {
+        if (!verifyCodeManager.verifyCodeOk(sessionId, registerReqDto.getVelCode())) {
             throw new BusinessException(ErrorCodeEnum.USER_VERIFY_CODE_ERROR);
         }
         //用户名是否存在
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserInfo::getUsername,registerReqDto.getUsername());
-        if(count(queryWrapper) > 0){
+        queryWrapper.eq(UserInfo::getUsername, registerReqDto.getUsername());
+        if (count(queryWrapper) > 0) {
             throw new BusinessException(ErrorCodeEnum.USER_NAME_EXIST);
         }
         //存入数据库
@@ -88,7 +88,6 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
         userInfo.setPassword(DigestUtils.md5DigestAsHex(registerReqDto.getPassword().getBytes(StandardCharsets.UTF_8)));
         userInfo.setNickName(registerReqDto.getUsername());
         userInfo.setSalt("0");
-        userInfo.setStatus(1);
         userInfo.setCreateTime(LocalDateTime.now());
         userInfo.setUpdateTime(LocalDateTime.now());
         save(userInfo);
@@ -98,9 +97,9 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
 
         Long id = userInfo.getId();
         return RestResp.ok(UserRegisterRespDto.builder()
-                .uid(id)
-                .token(jwtUtils.generateToken(id,SystemConfigConsts.NOVEL_FRONT_KEY))
-                .build());
+            .uid(id)
+            .token(jwtUtils.generateToken(id, SystemConfigConsts.NOVEL_FRONT_KEY))
+            .build());
     }
 
     @Override
@@ -110,10 +109,11 @@ public class UserServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> imple
         UserInfo userInfo = getById(userId);
 
         return RestResp.ok(UserInfoRespDto.builder()
-                .nickName(userInfo.getNickName())
-                .userPhoto(userInfo.getUserPhoto())
-                .userSex(userInfo.getUserSex())
-                .build());
+            .nickName(userInfo.getNickName())
+            .userPhoto(userInfo.getUserPhoto())
+            .userSex(userInfo.getUserSex())
+            .status(userInfo.getStatus())
+            .build());
     }
 
     @Override

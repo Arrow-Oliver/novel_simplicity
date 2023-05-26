@@ -27,4 +27,10 @@ public class UserInfoRespDto {
      * 用户性别
      * */
     private Integer userSex;
+
+    /**
+     * 用户状态
+     * */
+    private Integer status;
+
 }
